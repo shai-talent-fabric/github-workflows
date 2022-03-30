@@ -8,5 +8,7 @@ jobs:
   reusable_workflow_job:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "ho ${{ inputs.username }}"
+      - uses: ./.github/workflows/reusable-workflow.yaml
+        with:
+          username: ${{ inputs.username }}
+          token: ${{ secrets.GH_PAT }}
