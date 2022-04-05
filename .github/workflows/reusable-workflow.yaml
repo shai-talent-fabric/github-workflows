@@ -1,20 +1,29 @@
 on:
   workflow_call:
     inputs:
-      aws_id:
-        required: true
-        type: string
-      aws_access_key:
-        required: true
-        type: string
       reponame:
         required: true
         type: string
+    secrets:
+      aws_id:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 jobs:
   reusable_workflow_job:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          #repository: $GITHUB_REPOSITORY
+          path: ${{ inputs.reponame }}
+          fetch-depth: 0
+      - uses: ./.github/workflows/template-workflow.yaml
+        with:
+          username: ${{ inputs.reponame }}
+          token: ${{ secrets.aws_id }}
       - name: Set Repo Envs
         run: |
           REPO_NAME=${{ inputs.reponame }}
