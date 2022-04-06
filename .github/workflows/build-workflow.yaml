@@ -1,0 +1,67 @@
+on:
+  workflow_call:
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+jobs:
+  build-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.9
+        with:
+          versionSpec: '5.6.7'
+           
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.9
+
+  #     - name: Set Repo Envs
+  #       run: |
+  #         REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+  #         echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
+  #         GITVERSION=${{ steps.gitversion.outputs.fullSemVer }}
+  #         echo "gitversion=${GITVERSION}" | tee -a $GITHUB_ENV
+
+  #     - name: docker build and push # split build and push steps
+  #       env:
+  #         REGISTRY: 737852819915.dkr.ecr.us-east-1.amazonaws.com
+  #         PROJECT: talentfabric
+  #         REPO: ${{ env.git_repo_name }}
+  #         TAG: ${{ env.gitversion }}
+  #         DOCKER_FILE: ${{ env.git_repo_name }}/Dockerfile
+  #         BUILD_CONTEXT: ${{ env.git_repo_name }}
+  #       run: |
+  #         aws sts get-caller-identity
+  #         IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO}:${TAG}
+  #         echo "docker build ${IMAGE_NAME}"
+
+  # deploy-workflow:
+
+      # - name: commit-tag-build
+      #   env:
+      #     TAG: ${{ env.gitversion }}
+      #   run: |
+      #     git -C ${{ env.git_repo_name }} config user.name "GitHub Actions Bot"
+      #     git -C ${{ env.git_repo_name }} config user.email "<>"
+      #     git -C ${{ env.git_repo_name }} tag "${TAG}" || true
+      #     git -C ${{ env.git_repo_name }} push --tags || true
