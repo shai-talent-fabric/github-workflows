@@ -47,12 +47,8 @@ jobs:
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
 
       - name: Docker build
-        env:
-          BUILD_CONTEXT: ${{ env.git_repo_name }}
         run: |
-          ls
-          ls -l ${{env.git_repo_name}}
-          #docker build -t ${{env.docker_image_name}} -f ${{env.git_repo_name}}/Dockerfile ${BUILD_CONTEXT}
+          docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
         if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
