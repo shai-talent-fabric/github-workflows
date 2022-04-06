@@ -4,6 +4,7 @@ on:
       upload:
         required: false
         type: boolean
+        default: false
     secrets:
       aws-access-key-id:
         required: true
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Docker build
-        if: ${{inputs.upload}}
+        if: ${{inputs.upload == true}}
         run: |
           echo "${{inputs.upload}}"
       # - name: Install GitVersion
