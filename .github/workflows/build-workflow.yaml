@@ -43,7 +43,7 @@ jobs:
           REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
           PROJECT=talentfabric
           TAG=${{ steps.gitversion.outputs.fullSemVer }}
-          IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO}:${TAG}
+          IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO_NAME}:${TAG}
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
 
       - name: Docker build
