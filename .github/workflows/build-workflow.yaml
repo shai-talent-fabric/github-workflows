@@ -51,7 +51,7 @@ jobs:
 
       - name: Docker build 
         run: |
-          docker build -t $IMAGE_NAME -f ${{steps.set-envs.outputs.git_repo_name}}/Dockerfile ${{steps.set-envs.outputs.git_repo_name}}
+          docker build -t 737852819915.dkr.ecr.us-east-1.amazonaws.com/${{steps.set-envs.outputs.docker_image_name}} -f ${{steps.set-envs.outputs.git_repo_name}}/Dockerfile ${{steps.set-envs.outputs.git_repo_name}}
 
   deploy-workflow:
     needs: build-workflow
