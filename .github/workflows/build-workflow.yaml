@@ -42,6 +42,10 @@ jobs:
           echo "git_repo_name=${REPO_NAME} git_version=${GITVERSION}" | tee -a $GITHUB_ENV
           env
 
+      - name: print Envs
+        run: |
+          echo "${{ env.git_repo_name }}"
+          env
   #     - name: docker build and push # split build and push steps
   #       env:
   #         REGISTRY: 737852819915.dkr.ecr.us-east-1.amazonaws.com
