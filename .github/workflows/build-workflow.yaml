@@ -9,10 +9,6 @@ on:
 jobs:
   build-workflow:
     runs-on: ubuntu-latest
-    outputs:
-      git_version: ${{ steps.gitversion.outputs.fullSemVer }}
-      git_repo_name: ${{ steps.set-envs.outputs.git_repo_name }}
-      docker_image_name: ${{ steps.set-envs.outputs.docker_image_name }}
     steps:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
@@ -43,38 +39,30 @@ jobs:
         id: set-envs
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
-          echo "::set-output name=git_repo_name::${REPO_NAME}"
+          echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
+          REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
           PROJECT=talentfabric
           TAG=${{ steps.gitversion.outputs.fullSemVer }}
-          IMAGE_NAME=${PROJECT}/${REPO_NAME}:${TAG}
-          echo "::set-output name=docker_image_name::${IMAGE_NAME}"
+          IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO}:${TAG}
+          echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
 
-      - name: Docker build 
+      - name: Docker build
+        env:
+          BUILD_CONTEXT: ${{ env.git_repo_name }}
         run: |
-          docker build -t 737852819915.dkr.ecr.us-east-1.amazonaws.com/${{steps.set-envs.outputs.docker_image_name}} -f ${{steps.set-envs.outputs.git_repo_name}}/Dockerfile ${{steps.set-envs.outputs.git_repo_name}}
-
-  deploy-workflow:
-    needs: build-workflow
-    runs-on: ubuntu-latest
-    steps:
-      - name: print envs
-        run: |
-          REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
-          echo ${{needs.build-workflow.outputs.git_version}}
-          echo ${{needs.build-workflow.outputs.git_repo_name}}
-          echo ${REGISTRY}/${{needs.build-workflow.outputs.docker_image_name}}
+          docker build -t ${{env.docker_image_name}} -f ${{env.git_repo_name}}/Dockerfile ${BUILD_CONTEXT}
 
       - name: Docker push
+        if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
         run: |
           docker push ${REGISTRY}/${{needs.build-workflow.outputs.docker_image_name}}
 
-  # deploy-workflow:
-
-      # - name: commit-tag-build
-      #   env:
-      #     TAG: ${{ env.gitversion }}
-      #   run: |
-      #     git -C ${{ env.git_repo_name }} config user.name "GitHub Actions Bot"
-      #     git -C ${{ env.git_repo_name }} config user.email "<>"
-      #     git -C ${{ env.git_repo_name }} tag "${TAG}" || true
-      #     git -C ${{ env.git_repo_name }} push --tags || true
+      - name: commit-tag-build
+        if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
+        env:
+          TAG: ${{ steps.gitversion.outputs.fullSemVer }}
+        run: |
+          git -C ${{ env.git_repo_name }} config user.name "GitHub Actions Bot"
+          git -C ${{ env.git_repo_name }} config user.email "<>"
+          git -C ${{ env.git_repo_name }} tag "${TAG}" || true
+          git -C ${{ env.git_repo_name }} push --tags || true
