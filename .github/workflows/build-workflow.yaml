@@ -55,7 +55,7 @@ jobs:
         run: |
           docker push ${{env.docker_image_name}}
 
-      - name: commit-tag-build
+      - name: Git tag
         if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
         env:
           TAG: ${{ steps.gitversion.outputs.fullSemVer }}
