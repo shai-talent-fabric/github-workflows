@@ -12,7 +12,7 @@ jobs:
     outputs:
       git_version: ${{ steps.gitversion.outputs.fullSemVer }}
       git_repo_name: ${{ steps.set-envs.outputs.git_repo_name }}
-      docker_image_name: ${{ steps.set-envs.outputs.docker_image_name }}
+      full_image_name: ${{ steps.set-envs.outputs.full_image_name }}
     steps:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
@@ -48,7 +48,7 @@ jobs:
           PROJECT=talentfabric
           TAG=${{ steps.gitversion.outputs.fullSemVer }}
           IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO_NAME}:${TAG}
-          echo "::set-output name=docker_image_name::${IMAGE_NAME}"
+          echo "::set-output name=full_image_name::${IMAGE_NAME}"
 
   deploy-workflow:
     needs: build-workflow
@@ -58,7 +58,7 @@ jobs:
         run: |
           echo ${{needs.build-workflow.outputs.git_version}}
           echo ${{needs.build-workflow.outputs.git_repo_name}}
-          echo ${{needs.build-workflow.outputs.docker_image_name}}
+          echo ${{needs.build-workflow.outputs.full_image_name}}
   #     - name: docker build and push # split build and push steps
   #       env:
   #         REGISTRY: 737852819915.dkr.ecr.us-east-1.amazonaws.com
