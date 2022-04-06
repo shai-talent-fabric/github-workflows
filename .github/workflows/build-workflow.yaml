@@ -49,6 +49,10 @@ jobs:
           IMAGE_NAME=${PROJECT}/${REPO_NAME}:${TAG}
           echo "::set-output name=docker_image_name::${IMAGE_NAME}"
 
+      - name: Docker build 
+        run: |
+          docker build -t $IMAGE_NAME -f ${{steps.set-envs.outputs.git_repo_name}}/Dockerfile ${{steps.set-envs.outputs.git_repo_name}}
+
   deploy-workflow:
     needs: build-workflow
     runs-on: ubuntu-latest
@@ -59,18 +63,10 @@ jobs:
           echo ${{needs.build-workflow.outputs.git_version}}
           echo ${{needs.build-workflow.outputs.git_repo_name}}
           echo ${REGISTRY}/${{needs.build-workflow.outputs.docker_image_name}}
-  #     - name: docker build and push # split build and push steps
-  #       env:
-  #         REGISTRY: 737852819915.dkr.ecr.us-east-1.amazonaws.com
-  #         PROJECT: talentfabric
-  #         REPO: ${{ env.git_repo_name }}
-  #         TAG: ${{ env.gitversion }}
-  #         DOCKER_FILE: ${{ env.git_repo_name }}/Dockerfile
-  #         BUILD_CONTEXT: ${{ env.git_repo_name }}
-  #       run: |
-  #         aws sts get-caller-identity
-  #         IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO}:${TAG}
-  #         echo "docker build ${IMAGE_NAME}"
+
+      - name: Docker push
+        run: |
+          docker push ${REGISTRY}/${{needs.build-workflow.outputs.docker_image_name}}
 
   # deploy-workflow:
 
