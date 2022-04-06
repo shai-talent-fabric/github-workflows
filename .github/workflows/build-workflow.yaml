@@ -60,7 +60,7 @@ jobs:
         env:
           TAG: ${{ steps.gitversion.outputs.fullSemVer }}
         run: |
-          git -C ${{ env.git_repo_name }} config user.name "GitHub Actions Bot"
-          git -C ${{ env.git_repo_name }} config user.email "<>"
-          git -C ${{ env.git_repo_name }} tag "${TAG}" || true
-          git -C ${{ env.git_repo_name }} push --tags || true
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git tag "${TAG}" || true
+          git push --tags || true
