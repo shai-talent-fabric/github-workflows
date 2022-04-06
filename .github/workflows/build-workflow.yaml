@@ -55,7 +55,7 @@ jobs:
       - name: Docker push
         if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
         run: |
-          docker push ${REGISTRY}/${{needs.build-workflow.outputs.docker_image_name}}
+          docker push ${{env.docker_image_name}}
 
       - name: commit-tag-build
         if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
