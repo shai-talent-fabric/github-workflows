@@ -41,8 +41,10 @@ jobs:
           GITVERSION=${{ steps.gitversion.outputs.fullSemVer }}
           echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
           echo "git_version=${GITVERSION}" | tee -a $GITHUB_ENV
-          
+
   deploy-workflow:
+    runs-on: ubuntu-latest
+    steps:
       - name: print Envs
         run: |
           echo "${{ env.git_repo_name }}"
