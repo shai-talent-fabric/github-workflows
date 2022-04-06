@@ -50,7 +50,9 @@ jobs:
         env:
           BUILD_CONTEXT: ${{ env.git_repo_name }}
         run: |
-          docker build -t ${{env.docker_image_name}} -f ${{env.git_repo_name}}/Dockerfile ${BUILD_CONTEXT}
+          ls
+          ls -l ${{env.git_repo_name}}
+          #docker build -t ${{env.docker_image_name}} -f ${{env.git_repo_name}}/Dockerfile ${BUILD_CONTEXT}
 
       - name: Docker push
         if: ${{ success() && ((github.ref  == 'refs/heads/main') || (github.ref  == 'refs/heads/master'))}}
