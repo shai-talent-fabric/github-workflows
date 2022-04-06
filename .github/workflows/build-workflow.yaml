@@ -44,11 +44,13 @@ jobs:
         id: set-envs
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+          git_version=${{ steps.gitversion.outputs.fullSemVer }}
           echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
-          echo "git_version=${{ steps.gitversion.outputs.fullSemVer }}" | tee -a $GITHUB_ENV
+          echo "git_version=${git_version}" | tee -a $GITHUB_ENV
           REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
           PROJECT=talentfabric
-          IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO_NAME}:${{env.git_version}}
+          TAG=${git_version}
+          IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO_NAME}:${TAG}
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
 
       - name: Docker build
