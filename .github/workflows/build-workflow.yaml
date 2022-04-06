@@ -43,6 +43,7 @@ jobs:
           echo "git_version=${GITVERSION}" | tee -a $GITHUB_ENV
 
   deploy-workflow:
+    needs: build-workflow
     runs-on: ubuntu-latest
     steps:
       - name: print Envs
