@@ -3,8 +3,7 @@ on:
     inputs:
       upload:
         required: false
-        type: boolean
-        default: false
+        default: "no"
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -58,12 +57,12 @@ jobs:
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{inputs.upload == true}}
+        if: ${{inputs.upload == "yes"}}
         run: |
           docker push ${{env.docker_image_name}}
 
       - name: Git tag
-        if: ${{inputs.upload == true}}
+        if: ${{inputs.upload == "yes"}}
         env:
           TAG: ${{env.git_version}}
         run: |
