@@ -3,6 +3,7 @@ on:
     inputs:
       upload:
         required: false
+        type: string
         default: "no"
     secrets:
       AWS_ACCESS_KEY_ID:
