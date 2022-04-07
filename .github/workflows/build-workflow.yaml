@@ -60,9 +60,9 @@ jobs:
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{env.UPLOAD == "true"}}
+        if: ${{env.UPLOAD}} == "true"
         run: |
-          # if [[ $UPLOAD == "true" ]]; then
+          if [[ $UPLOAD == "true" ]]; then
             docker push ${{env.docker_image_name}}
           # else
           #  echo "${UPLOAD}"
