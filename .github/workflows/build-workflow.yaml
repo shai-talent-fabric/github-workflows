@@ -62,18 +62,14 @@ jobs:
       - name: Docker push
         if: ${{env.UPLOAD}} == "true"
         run: |
-          if [[ $UPLOAD == "true" ]]; then
             docker push ${{env.docker_image_name}}
-          # else
-          #  echo "${UPLOAD}"
-          # fi
 
-      # - name: Git tag
-      #   if: ${{inputs.upload == "true"}}
-      #   env:
-      #     TAG: ${{env.git_version}}
-      #   run: |
-      #     git config user.name "GitHub Actions Bot"
-      #     git config user.email "<>"
-      #     git tag "${TAG}" || true
-      #     git push --tags || true
+      - name: Git tag
+        if: ${{env.UPLOAD}} == "true"
+        env:
+          TAG: ${{env.git_version}}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git tag "${TAG}" || true
+          git push --tags || true
