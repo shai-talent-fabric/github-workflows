@@ -63,10 +63,7 @@ jobs:
         env: 
           UPLOAD: ${{env.UPLOAD}}
         run: |
-            if [[ $UPLOAD == "true" ]]; then
-              docker push ${{env.docker_image_name}}
-            else echo $UPLOAD
-            fi
+            [[ $UPLOAD == "true" ]] && docker push ${{env.docker_image_name}}
 
       - name: Git tag
         env:
@@ -76,7 +73,6 @@ jobs:
             if [[ $UPLOAD == "true" ]]; then
               git config user.name "GitHub Actions Bot"
               git config user.email "<>"
-              git tag "${TAG}" || true
-              git push --tags || true
-            else echo $UPLOAD
+              git tag "${TAG}"
+              git push --tags
             fi
