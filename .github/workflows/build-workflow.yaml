@@ -55,6 +55,7 @@ jobs:
 
       - name: Docker build
         run: |
+          echo "${{inputs.upload}}"
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
