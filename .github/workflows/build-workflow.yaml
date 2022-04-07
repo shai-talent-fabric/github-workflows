@@ -17,7 +17,7 @@ jobs:
       - name: Set envs
         id: set-envs
         run: |
-          echo "${{input.upload}}"
+          echo "${{inputs.upload}}"
       # - name: Install GitVersion
       #   uses: gittools/actions/gitversion/setup@v0.9.9
       #   with:
