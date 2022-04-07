@@ -55,16 +55,15 @@ jobs:
 
       - name: Docker build
         run: |
-          echo "${{inputs.upload}}"
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{inputs.upload == true}}
+        if: ${{inputs.upload == "true"}}
         run: |
           docker push ${{env.docker_image_name}}
 
       - name: Git tag
-        if: ${{inputs.upload == true}}
+        if: ${{inputs.upload == "true"}}
         env:
           TAG: ${{env.git_version}}
         run: |
