@@ -58,16 +58,16 @@ jobs:
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{inputs.upload == "true"}}
+        if: ${{contains(inputs.upload,"true")}}
         run: |
           docker push ${{env.docker_image_name}}
 
-      - name: Git tag
-        if: ${{inputs.upload == "true"}}
-        env:
-          TAG: ${{env.git_version}}
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git tag "${TAG}" || true
-          git push --tags || true
+      # - name: Git tag
+      #   if: ${{inputs.upload == "true"}}
+      #   env:
+      #     TAG: ${{env.git_version}}
+      #   run: |
+      #     git config user.name "GitHub Actions Bot"
+      #     git config user.email "<>"
+      #     git tag "${TAG}" || true
+      #     git push --tags || true
