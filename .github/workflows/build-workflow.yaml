@@ -73,6 +73,6 @@ jobs:
             if [[ $UPLOAD == "true" ]]; then
               git config user.name "GitHub Actions Bot"
               git config user.email "<>"
-              git tag "${TAG}"
-              git push --tags
+              git tag "${TAG}" || true
+              git push --tags || true
             fi
