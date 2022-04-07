@@ -58,7 +58,7 @@ jobs:
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{contains(inputs.upload,"true")}}
+        if: ${{toJSON(inputs.upload) == "true"}}
         run: |
           docker push ${{env.docker_image_name}}
 
