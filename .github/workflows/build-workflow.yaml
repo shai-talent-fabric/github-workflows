@@ -47,6 +47,7 @@ jobs:
           git_version=${{ steps.gitversion.outputs.fullSemVer }}
           echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
+          echo "UPLOAD=${{inputs.upload}}" | tee -a $GITHUB_ENV
           REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
           PROJECT=talentfabric
           TAG=${git_version}
@@ -55,12 +56,17 @@ jobs:
 
       - name: Docker build
         run: |
+          echo ${{env.UPLOAD}}
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{toJSON(inputs.upload) == "true"}}
+        if: ${{env.UPLOAD == "true"}}
         run: |
-          docker push ${{env.docker_image_name}}
+          # if [[ $UPLOAD == "true" ]]; then
+            docker push ${{env.docker_image_name}}
+          # else
+          #  echo "${UPLOAD}"
+          # fi
 
       # - name: Git tag
       #   if: ${{inputs.upload == "true"}}
