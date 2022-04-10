@@ -67,3 +67,30 @@ jobs:
               git config user.email "<>"
               git tag "${{env.git_version}}" || true
               git push --tags || true
+
+      - name: Checkout deployments-scripts repo
+        if: ${{env.UPLOAD}} == "true"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+          repository: TalentFabric/deployments-scripts
+
+      - name: Deploy to dev
+        if: ${{env.UPLOAD}} == "true"
+        env:
+          TAG: 0.9.109
+          REPO: "match-service"
+        run: |
+              export TAG_FILE=$(find ./resources/services -type d -name "${REPO}" )/dev/ovveride.yaml
+              export TAG_FIND=$(grep tag $TAG_FILE | cut -d: -f2 | tr -d " ")
+              if [[ ! -z "${TAG_FIND}" ]]; then 
+                sed -i "s/${TAG_FIND}/${TAG}/" $TAG_FILE
+                git config user.name "GitHub Actions Bot"
+                git config user.email "<>"
+                git add $TAG_FILE || true
+                git commit -m "bot deploying to dev" || true
+                git push origin master || true
+              else
+                echo "could not deploy" && exit 1
+              fi
