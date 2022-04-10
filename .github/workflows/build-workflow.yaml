@@ -85,9 +85,13 @@ jobs:
           REPO_NAME: ${{env.git_version}}
         run: |
               export TAG_FILE=$(find ./resources/services -type d -name "${REPO_NAME}" )/dev/ovveride.yaml
+              ls -l
+              echo $TAG_FILE
               export TAG_FIND=$(grep tag $TAG_FILE | cut -d: -f2 | tr -d " ")
+              echo $TAG_FIND
               if [[ ! -z "${TAG_FIND}" ]]; then 
                 sed -i "s/${TAG_FIND}/${TAG}/" $TAG_FILE
+                cat $TAG_FILE
                 git config user.name "GitHub Actions Bot"
                 git config user.email "<>"
                 git add $TAG_FILE || true
