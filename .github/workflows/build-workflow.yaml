@@ -15,80 +15,55 @@ jobs:
   build-workflow:
     runs-on: ubuntu-latest
     steps:
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.9
+        with:
+          versionSpec: '5.6.7'
+           
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.9
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: Set envs
         id: set-envs
         run: |
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+          git_version=${{ steps.gitversion.outputs.fullSemVer }}
+          echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
+          echo "git_version=${git_version}" | tee -a $GITHUB_ENV
+          IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
+          echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
           echo "UPLOAD=${{inputs.upload}}" | tee -a $GITHUB_ENV
+
+      - name: Docker build
+        run: |
+          docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
         if: ${{env.UPLOAD}} == "true"
-        env: 
-          UPLOAD: ${{env.UPLOAD}}
         run: |
-            echo "yep ${UPLOAD}"
-      # - name: Install GitVersion
-      #   uses: gittools/actions/gitversion/setup@v0.9.9
-      #   with:
-      #     versionSpec: '5.6.7'
-           
-      # - name: Checkout the repo
-      #   uses: actions/checkout@v2
-      #   with:
-      #     fetch-depth: 0
+              docker push ${{env.docker_image_name}}
 
-      # - name: Determine version
-      #   id: gitversion
-      #   uses: gittools/actions/gitversion/execute@v0.9.9
-
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: us-east-1
-
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
-
-      # - name: Set envs
-      #   id: set-envs
-      #   run: |
-      #     REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
-      #     git_version=${{ steps.gitversion.outputs.fullSemVer }}
-      #     echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
-      #     echo "git_version=${git_version}" | tee -a $GITHUB_ENV
-      #     echo "UPLOAD=${{inputs.upload}}" | tee -a $GITHUB_ENV
-      #     REGISTRY=737852819915.dkr.ecr.us-east-1.amazonaws.com
-      #     PROJECT=talentfabric
-      #     TAG=${git_version}
-      #     IMAGE_NAME=${REGISTRY}/${PROJECT}/${REPO_NAME}:${TAG}
-      #     echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
-
-      # - name: Docker build
-      #   run: |
-      #     echo ${{env.UPLOAD}}
-      #     docker build -t ${{env.docker_image_name}} .
-
-      # - name: Docker push
-      #   if: ${{env.UPLOAD}} == "true"
-      #   env: 
-      #     UPLOAD: ${{env.UPLOAD}}
-      #   run: |
-      #       if [[ $UPLOAD == "true" ]]; then
-      #         docker push ${{env.docker_image_name}}
-      #       else echo $UPLOAD
-      #       fi
-
-      # - name: Git tag
-      #   env:
-      #     UPLOAD: ${{env.UPLOAD}}
-      #     TAG: ${{env.git_version}}
-      #   run: |
-      #       if [[ $UPLOAD == "true" ]]; then
-      #         git config user.name "GitHub Actions Bot"
-      #         git config user.email "<>"
-      #         git tag "${TAG}" || true
-      #         git push --tags || true
-      #       else echo $UPLOAD
-      #       fi
+      - name: Git tag
+        if: ${{env.UPLOAD}} == "true"
+        run: |
+              git config user.name "GitHub Actions Bot"
+              git config user.email "<>"
+              git tag "${{env.git_version}}" || true
+              git push --tags || true
