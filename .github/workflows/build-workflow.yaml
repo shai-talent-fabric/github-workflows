@@ -10,63 +10,65 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+      GH_PAT:
+        required: true
 
 jobs:
   build-workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.9
-        with:
-          versionSpec: '5.6.7'
+      # - name: Install GitVersion
+      #   uses: gittools/actions/gitversion/setup@v0.9.9
+      #   with:
+      #     versionSpec: '5.6.7'
            
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      # - name: Checkout the repo
+      #   uses: actions/checkout@v2
+      #   with:
+      #     fetch-depth: 0
 
-      - name: Determine version
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.9
+      # - name: Determine version
+      #   id: gitversion
+      #   uses: gittools/actions/gitversion/execute@v0.9.9
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
 
       - name: Set envs
         id: set-envs
         run: |
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
-          git_version=${{ steps.gitversion.outputs.fullSemVer }}
-          echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
-          echo "git_version=${git_version}" | tee -a $GITHUB_ENV
-          IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
-          echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
+          # REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+          # git_version=${{ steps.gitversion.outputs.fullSemVer }}
+          # echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
+          # echo "git_version=${git_version}" | tee -a $GITHUB_ENV
+          # IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
+          # echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
           echo "UPLOAD=${{inputs.upload}}" | tee -a $GITHUB_ENV
 
-      - name: Docker build
-        run: |
-          docker build -t ${{env.docker_image_name}} .
+      # - name: Docker build
+      #   run: |
+      #     docker build -t ${{env.docker_image_name}} .
 
-      - name: Docker push
-        if: ${{env.UPLOAD}} == "true"
-        run: |
-              docker push ${{env.docker_image_name}}
+      # - name: Docker push
+      #   if: ${{env.UPLOAD}} == "true"
+      #   run: |
+      #         docker push ${{env.docker_image_name}}
 
-      - name: Git tag
-        if: ${{env.UPLOAD}} == "true"
-        run: |
-              git config user.name "GitHub Actions Bot"
-              git config user.email "<>"
-              git tag "${{env.git_version}}" || true
-              git push --tags || true
+      # - name: Git tag
+      #   if: ${{env.UPLOAD}} == "true"
+      #   run: |
+      #         git config user.name "GitHub Actions Bot"
+      #         git config user.email "<>"
+      #         git tag "${{env.git_version}}" || true
+      #         git push --tags || true
 
       - name: Checkout deployments-scripts repo
         if: ${{env.UPLOAD}} == "true"
@@ -79,7 +81,7 @@ jobs:
       - name: Deploy to dev
         if: ${{env.UPLOAD}} == "true"
         env:
-          TAG: 0.9.109
+          TAG: 0.9.110
           REPO: "match-service"
         run: |
               export TAG_FILE=$(find ./resources/services -type d -name "${REPO}" )/dev/ovveride.yaml
