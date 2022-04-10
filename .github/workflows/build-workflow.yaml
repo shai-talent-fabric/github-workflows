@@ -82,7 +82,7 @@ jobs:
         if: ${{env.UPLOAD}} == "true"
         env:
           TAG: ${{env.git_version}}
-          REPO_NAME: ${{env.git_version}}
+          REPO_NAME: ${{env.git_repo_name}}
         run: |
               export TAG_FILE=$(find ./resources/services -type d -name "${REPO_NAME}" )/dev/ovveride.yaml
               ls -l
