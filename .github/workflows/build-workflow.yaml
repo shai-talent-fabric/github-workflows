@@ -1,7 +1,7 @@
 on:
   workflow_call:
     inputs:
-      upload:
+      tag_version:
         required: false
         type: string
         default: "no"
@@ -57,14 +57,14 @@ jobs:
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
           IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
-          echo "upload=${{inputs.upload}}" | tee -a $GITHUB_ENV
+          echo "tag_version=${{inputs.tag_version}}" | tee -a $GITHUB_ENV
 
       - name: Docker build
         run: |
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{env.upload}} == "true"
+        if: ${{env.tag_version}} == "true"
         run: |
               docker push ${{env.docker_image_name}}
 
@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0
 
       - name: Git tag
-        if: ${{env.upload}} == "true"
+        if: ${{env.tag_version}} == "true"
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
