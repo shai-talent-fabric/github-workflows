@@ -57,14 +57,14 @@ jobs:
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
           IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
-          echo "UPLOAD=${{inputs.upload}}" | tee -a $GITHUB_ENV
+          echo "upload=${{inputs.upload}}" | tee -a $GITHUB_ENV
 
       - name: Docker build
         run: |
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{env.UPLOAD}} == "true"
+        if: ${{env.upload}} == "true"
         run: |
               docker push ${{env.docker_image_name}}
 
@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0
 
       - name: Git tag
-        if: ${{env.UPLOAD}} == "true"
+        if: ${{env.upload}} == "true"
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
@@ -96,10 +96,10 @@ jobs:
           git_version=${{ needs.build-workflow.outputs.git_version }}
           echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
-          echo "DEPLOY=${{inputs.deploy}}" | tee -a $GITHUB_ENV
+          echo "deploy=${{inputs.deploy}}" | tee -a $GITHUB_ENV
 
       - name: Checkout deployments-scripts repo
-        if: ${{env.UPLOAD}} == "true"
+        if: ${{env.deploy}} == "true"
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -107,7 +107,7 @@ jobs:
           repository: TalentFabric/deployments-scripts
 
       - name: Deploy to dev
-        if: ${{env.UPLOAD}} == "true"
+        if: ${{env.deploy}} == "true"
         env:
           TAG: ${{env.git_version}}
           REPO_NAME: ${{env.git_repo_name}}
