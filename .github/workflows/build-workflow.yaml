@@ -65,12 +65,12 @@ jobs:
           docker build -t ${{env.docker_image_name}} .
 
       - name: Docker push
-        if: ${{env.tag_version}} == 'true'
+        if: ${{github.event.inputs.tag_version}} == 'true'
         run: |
               docker push ${{env.docker_image_name}}
 
   tag-workflow:
-    if: ${{env.tag_version}} == 'true'
+    if: ${{github.event.inputs.tag_version}} == 'true'
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
@@ -87,7 +87,7 @@ jobs:
           git push --tags || true
 
   deploy-workflow:
-    if:  ${{env.deploy}} == 'true'
+    if:  ${{github.event.inputs.deploy}} == 'true'
     needs: ["build-workflow", "tag-workflow"]
     runs-on: ubuntu-latest
     steps:
