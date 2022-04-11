@@ -63,6 +63,11 @@ jobs:
         run: |
           docker build -t ${{env.docker_image_name}} .
 
+      - name: Docker push
+        if: ${{env.UPLOAD}} == "true"
+        run: |
+              docker push ${{env.docker_image_name}}
+              
   tag-workflow:
     needs: build-workflow
     runs-on: ubuntu-latest
