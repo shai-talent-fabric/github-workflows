@@ -9,7 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step1.outputs.test }}
     steps:
+      - id: step1
+        run: echo "::set-output name=test::hello"
       - name: Set Repo Envs
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')

@@ -1,0 +1,59 @@
+on:
+  workflow_call:
+    inputs:
+      test:
+        description: 'A username passed from the caller workflow'
+        default: 'john-doe'
+        required: false
+        type: string
+      deploy:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      GH_PAT:
+        required: true
+
+jobs:
+  deploy-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set envs
+        id: set-envs
+        run: |
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+          git_version=${{ steps.gitversion.outputs.fullSemVer }}
+          echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
+          echo "git_version=${git_version}" | tee -a $GITHUB_ENV
+          echo "UPLOAD=${{inputs.test}}" | tee -a $GITHUB_ENV
+
+      # - name: Checkout deployments-scripts repo
+      #   if: ${{env.UPLOAD}} == "true"
+      #   uses: actions/checkout@v2
+      #   with:
+      #     fetch-depth: 0
+      #     token: ${{ secrets.GH_PAT }}
+      #     repository: TalentFabric/deployments-scripts
+
+      # - name: Deploy to dev
+      #   if: ${{env.UPLOAD}} == "true"
+      #   env:
+      #     TAG: ${{env.git_version}}
+      #     REPO_NAME: ${{env.git_repo_name}}
+      #   run: |
+      #         export TAG_FILE=$(find ./resources/services -type d -name "${REPO_NAME}" )/dev/ovveride.yaml
+      #         export TAG_FIND=$(grep tag $TAG_FILE | cut -d: -f2 | tr -d " ")
+      #         if [[ ! -z "${TAG_FIND}" ]]; then 
+      #           sed -i "s/${TAG_FIND}/${TAG}/" $TAG_FILE
+      #           git config user.name "GitHub Actions Bot"
+      #           git config user.email "<>"
+      #           git add $TAG_FILE || true
+      #           git commit -m "bot deploying to dev" || true
+      #           git push origin master || true
+      #         else
+      #           echo "could not deploy" && exit 1
+      #         fi
