@@ -60,7 +60,6 @@ jobs:
           IMAGE_NAME=737852819915.dkr.ecr.us-east-1.amazonaws.com/talentfabric/${REPO_NAME}:${git_version}
           echo "docker_image_name=${IMAGE_NAME}" | tee -a $GITHUB_ENV
           echo "tag_version=${{inputs.tag_version}}" | tee -a $GITHUB_ENV
-          [[ $BARNCH =~ "-rc" ]] && echo "tag_version=${{inputs.tag_version}}" | tee -a $GITHUB_ENV
 
       - name: Docker build
         run: |
@@ -72,6 +71,7 @@ jobs:
               docker push ${{env.docker_image_name}}
 
   tag-workflow:
+    if: ${{ ! contains(github.event.head_commit.message, '#skip-build') }}
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
@@ -89,6 +89,7 @@ jobs:
           git push --tags || true
 
   deploy-workflow:
+    if: ${{ ! contains(github.event.head_commit.message, '#skip-build') }}
     needs: ["build-workflow", "tag-workflow"]
     runs-on: ubuntu-latest
     steps:
