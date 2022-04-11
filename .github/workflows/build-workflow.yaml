@@ -67,7 +67,7 @@ jobs:
         if: ${{env.UPLOAD}} == "true"
         run: |
               docker push ${{env.docker_image_name}}
-              
+
   tag-workflow:
     needs: build-workflow
     runs-on: ubuntu-latest
@@ -76,13 +76,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Git tag
         if: ${{env.UPLOAD}} == "true"
         run: |
-              git config user.name "GitHub Actions Bot"
-              git config user.email "<>"
-              git tag "${{ needs.build-workflow.outputs.git_version }}" || true
-              git push --tags || true
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git tag "${{ needs.build-workflow.outputs.git_version }}" || true
+          git push --tags || true
 
   deploy-workflow:
     needs: ["build-workflow", "tag-workflow"]
