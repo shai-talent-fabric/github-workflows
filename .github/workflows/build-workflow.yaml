@@ -20,6 +20,8 @@ on:
 jobs:
   build-workflow:
     runs-on: ubuntu-latest
+    outputs:
+      git_version: ${{ steps.gitversion.outputs.fullSemVer }}
     steps:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.9
@@ -82,7 +84,7 @@ jobs:
         id: set-envs
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
-          git_version=${{ needs.build-workflow.gitversion.outputs.fullSemVer }}
+          git_version=${{ needs.build-workflow.git_version.outputs.fullSemVer }}
           echo "git_repo_name=${REPO_NAME}" | tee -a $GITHUB_ENV
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
           echo "DEPLOY=${{inputs.deploy}}" | tee -a $GITHUB_ENV
