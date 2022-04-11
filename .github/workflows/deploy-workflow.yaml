@@ -1,11 +1,6 @@
 on:
   workflow_call:
     inputs:
-      test:
-        description: 'A username passed from the caller workflow'
-        default: 'john-doe'
-        required: false
-        type: string
       deploy:
         required: false
         type: boolean
@@ -19,7 +14,15 @@ on:
         required: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step1.outputs.test }}
+    steps:
+      - id: step1
+        run: echo "::set-output name=test::hello"
   deploy-workflow:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Set envs
@@ -31,6 +34,7 @@ jobs:
           echo "git_version=${git_version}" | tee -a $GITHUB_ENV
           echo "DEPLOY=${{inputs.deploy}}" | tee -a $GITHUB_ENV
           echo "TEST=${{inputs.test}}" | tee -a $GITHUB_ENV
+          echo ${{needs.test.outputs.output1}}
 
       # - name: Checkout deployments-scripts repo
       #   if: ${{env.UPLOAD}} == "true"
