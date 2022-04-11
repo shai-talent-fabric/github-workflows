@@ -19,7 +19,7 @@ on:
 
 jobs:
   build-workflow:
-    if: ! contains(github.event.head_commit.message, '#skip-build')
+    if: ${{ ! contains(github.event.head_commit.message, '#skip-build') }}
     runs-on: ubuntu-latest
     outputs:
       git_version: ${{ steps.gitversion.outputs.fullSemVer }}
@@ -72,7 +72,6 @@ jobs:
               docker push ${{env.docker_image_name}}
 
   tag-workflow:
-    if: ! contains(github.event.head_commit.message, '#skip-build')
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
@@ -90,7 +89,6 @@ jobs:
           git push --tags || true
 
   deploy-workflow:
-    if: ! contains(github.event.head_commit.message, '#skip-build')
     needs: ["build-workflow", "tag-workflow"]
     runs-on: ubuntu-latest
     steps:
