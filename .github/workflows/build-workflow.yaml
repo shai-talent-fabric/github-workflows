@@ -3,8 +3,8 @@ on:
     inputs:
       tag_version:
         required: false
-        type: string
-        default: "no"
+        type: boolean
+        default: false
       deploy:
         required: false
         type: boolean
