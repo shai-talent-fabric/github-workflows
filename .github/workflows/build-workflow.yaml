@@ -67,6 +67,10 @@ jobs:
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Git tag
         if: ${{env.UPLOAD}} == "true"
         run: |
