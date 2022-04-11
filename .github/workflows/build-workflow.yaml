@@ -71,7 +71,7 @@ jobs:
               docker push ${{env.docker_image_name}}
 
   tag-workflow:
-    if: ${{ ! contains(github.event.head_commit.message, '#skip-build') }}
+    if: ${{env.tag_version}}
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +81,6 @@ jobs:
           fetch-depth: 0
 
       - name: Git tag
-        if: ${{env.tag_version}} == "true"
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
@@ -89,7 +88,7 @@ jobs:
           git push --tags || true
 
   deploy-workflow:
-    if: ${{ ! contains(github.event.head_commit.message, '#skip-build') }}
+    if:  ${{env.deploy}}
     needs: ["build-workflow", "tag-workflow"]
     runs-on: ubuntu-latest
     steps:
@@ -103,7 +102,6 @@ jobs:
           echo "deploy=${{inputs.deploy}}" | tee -a $GITHUB_ENV
 
       - name: Checkout deployments-scripts repo
-        if: ${{env.deploy}} == "true"
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -111,7 +109,6 @@ jobs:
           repository: TalentFabric/deployments-scripts
 
       - name: Deploy to dev
-        if: ${{env.deploy}} == "true"
         env:
           TAG: ${{env.git_version}}
           REPO_NAME: ${{env.git_repo_name}}
