@@ -70,7 +70,7 @@ jobs:
               docker push ${{env.docker_image_name}}
 
   tag-version:
-    if: ${{inputs.tag_version}} == 'true'
+    if: ${{inputs.tag_version}}
     needs: build-workflow
     runs-on: ubuntu-latest
     steps:
