@@ -87,7 +87,7 @@ jobs:
           git push --tags || true
 
   deploy-dev:
-    if:  ${{inputs.deploy}} == 'true'
+    if: ${{inputs.deploy}}
     needs: ["build-workflow", "tag-version"]
     runs-on: ubuntu-latest
     steps:
