@@ -119,7 +119,7 @@ jobs:
                 git config user.name "GitHub Actions Bot"
                 git config user.email "<>"
                 git add $TAG_FILE || true
-                git commit -m "bot deploying to dev" || true
+                git commit -m "bot ${REPO_NAME} ${TAG_FILE} deploy to dev" || true
                 git push origin master || true
               else
                 echo "could not deploy" && exit 1
